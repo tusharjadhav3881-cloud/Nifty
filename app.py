@@ -1,19 +1,36 @@
+import streamlit as st
 import pandas as pd
 import seaborn as sb
 import matplotlib.pyplot as plt
 
-df=pd.read_csv("Nifty_Stocks.csv")
+# Load dataset
+df = pd.read_csv("Nifty_Stocks.csv")
 
-df.Date=df.Date.astype('datetime64[ns]')
+# Convert 'Date' to datetime
+df['Date'] = pd.to_datetime(df['Date'])
 
-print(df.Category.unique())
-c=input("Enter Category Name:")
-d=df[df.Category==c]
+st.title("Nifty Stocks Price Visualization")
 
-print(df.Symbol.unique())
-s=input("Enter Symbol Name:")
-r=df[df.Symbol==s]
+# Select Category
+categories = df['Category'].unique()
+c = st.selectbox("Select Category:", categories)
 
-sb.lineplot(x=r.Date,y=r.Close)
+# Filter dataframe by Category
+d = df[df['Category'] == c]
+
+# Select Symbol from filtered category
+symbols = d['Symbol'].unique()
+s = st.selectbox("Select Symbol:", symbols)
+
+# Filter dataframe by Symbol within selected category
+r = d[d['Symbol'] == s]
+
+# Plot
+fig, ax = plt.subplots()
+sb.lineplot(x=r['Date'], y=r['Close'], ax=ax)
+ax.set_title(f"Closing Price for {s} in Category {c}")
 plt.xticks(rotation=90)
-plt.show()
+plt.tight_layout()
+
+st.pyplot(fig)
+
